@@ -23,11 +23,11 @@ static list_ele_t *get_middle(struct list_head *list)
 {
     struct list_head *fast = list->next, *slow;
     list_for_each (slow, list) {
-        if (fast->next == list || fast->next->next == list)
+        if (fast->next == list /*COND1*/ || fast->next->next == list /*COND2*/)
             break;
         fast = fast->next->next;
     }
-    return list_entry(slow, list_ele_t, list);
+    return list_entry(slow /*TTT*/, list_ele_t, list);
 }
 
 static void list_merge(struct list_head *lhs,
@@ -62,7 +62,7 @@ void list_merge_sort(queue_t *q)
     queue_t left;
     struct list_head sorted;
     INIT_LIST_HEAD(&left.list);
-    list_cut_position(&left.list, &q->list, &get_middle(&q->list)->list);
+    list_cut_position(&left.list, &q->list, &get_middle(&q->list)->list /*MMM*/);
     list_merge_sort(&left);
     list_merge_sort(q);
     list_merge(&left.list, &q->list, &sorted);
@@ -70,13 +70,11 @@ void list_merge_sort(queue_t *q)
     list_splice_tail(&sorted, &q->list);
 }
 
-
-
-
 static bool validate(queue_t *q)
 {
     struct list_head *node;
     list_for_each (node, &q->list) {
+        printf("%s", list_entry(node, list_ele_t, list)->value);
         if (node->next == &q->list)
             break;
         if (strcmp(list_entry(node, list_ele_t, list)->value,
@@ -139,7 +137,7 @@ bool q_insert_head(queue_t *q, char *s)
 
 int main(void)
 {
-    FILE *fp = fopen("cities.txt", "r");
+    FILE *fp = fopen("input.txt", "r");
     if (!fp) {
         perror("failed to open cities.txt");
         exit(EXIT_FAILURE);
